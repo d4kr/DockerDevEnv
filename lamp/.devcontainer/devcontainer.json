@@ -1,0 +1,14 @@
+{
+    "name": "LAMP Dev",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "apache",
+    "workspaceFolder": "/var/www/html",
+    "extensions": [
+      "felixfbecker.php-intellisense",
+      "ms-vscode.vscode-typescript-next",
+      "oderwat.indent-rainbow"
+    ],
+    "settings": {
+      "php.validate.executablePath": "/usr/local/bin/php"
+    }
+}

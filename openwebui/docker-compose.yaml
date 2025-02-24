@@ -1,0 +1,47 @@
+services:
+  ollama:
+    build:
+      context: ./ollama
+      dockerfile: Dockerfile
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    tty: true
+    environment:
+      - OLLAMA_MODELS=/root/.ollama
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        limits:
+          cpus: "${OLLAMA_CPU_LIMIT}"
+          memory: "${OLLAMA_MEMORY_LIMIT}"
+    networks:
+      - openwebui_network
+    command: sh -c "ollama pull ${OLLAMA_MODEL} && ollama serve"
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui
+    container_name: openwebui
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+    depends_on:
+      - ollama
+    volumes:
+      - openwebui_data:/app/backend/data
+    networks:
+      - openwebui_network
+
+networks:
+  openwebui_network:
+
+volumes:
+  ollama_data:
+  openwebui_data:
