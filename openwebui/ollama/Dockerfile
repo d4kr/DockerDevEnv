@@ -17,5 +17,9 @@ RUN curl -fsSL https://ollama.com/install.sh | sh
 # Espone la porta usata da Ollama
 EXPOSE 11434
 
-# Avvia Ollama
-CMD ["ollama", "serve"]
+# Script per avviare Ollama in background
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Imposta lo script come comando di avvio
+ENTRYPOINT ["/entrypoint.sh"]
