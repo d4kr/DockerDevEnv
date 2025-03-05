@@ -1,0 +1,72 @@
+services:
+  apache:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: lamp_apache
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+    depends_on:
+      - mysql
+    networks:
+      - lamp_network
+
+  mysql:
+    image: mysql:8.4.4
+    container_name: lamp_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lamp_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - lamp_network
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: lamp_phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - lamp_network
+
+  code-server:
+    build:
+      context: ./code-server
+      dockerfile: Dockerfile
+    container_name: lamp_code_server
+    restart: always
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./src:/var/www/html   # Condivide il codice con Apache
+      - code_server_data:/config
+    environment:
+      - PUID=911
+      - PGID=911
+      - TZ=Europe/Zurich
+      - PASSWORD=yourpassword  # Sostituisci "yourpassword" con la password desiderata
+    networks:
+      - lamp_network
+    
+volumes:
+  mysql_data:
+  code_server_data:
+
+networks:
+  lamp_network:
